@@ -1,1 +1,1 @@
-one click install gitlab
+onekey install gitlab
