@@ -1,9 +1,14 @@
 #! /bin/bash
 
 :<<EOF
-1 change password: gitlab_user_password
-2 chage domain: git.ooooooo.me
+by Zandy
 EOF
+
+# config
+db_root_pswd=1234567
+db_gitlab_pswd=1234567
+mygitlab_domain=git.example.com
+
 
 # run as root!
 sudo apt-get update -y
@@ -15,7 +20,7 @@ sudo apt-get install -y vim
 sudo update-alternatives --set editor /usr/bin/vim.basic
 
 # install mysql
-sudo apt-get install mysql-server mysql-client libmysqlclient-dev
+sudo apt-get install -y mysql-server mysql-client libmysqlclient-dev
 
 sudo apt-get install -y build-essential zlib1g-dev libyaml-dev libssl-dev libgdbm-dev libreadline-dev libncurses5-dev libffi-dev curl openssh-server checkinstall libxml2-dev libxslt-dev libcurl4-openssl-dev libicu-dev
 
@@ -81,17 +86,15 @@ sudo -u git -H cp config.yml.example config.yml
 # Edit config and replace gitlab_url
 # with something like 'http://domain.com/'
 ##sudo -u git -H editor config.yml
-sudo -u git -H sed -i 's#gitlab_url: "http://localhost/"#gitlab_url: "http://git.ooooooo.me/"#' config.yml
+sudo -u git -H sed -i "s#gitlab_url: \"http://localhost/\"#gitlab_url: \"http://$mygitlab_domain/\"#" config.yml
 
 # Do setup
 sudo -u git -H ./bin/install
 
 # setup database
-root_pswd=root_user_password
-gitlab_pswd=gitlab
-mysql -uroot -p$root_pswd -e "CREATE USER 'gitlab'@'localhost' IDENTIFIED BY '$gitlab_pswd';";
-mysql -uroot -p$root_pswd -e "CREATE DATABASE IF NOT EXISTS gitlabhq_production DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
-mysql -uroot -p$root_pswd -e "GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON gitlabhq_production.* TO 'gitlab'@'localhost';";
+mysql -uroot -p$db_root_pswd -e "CREATE USER 'gitlab'@'localhost' IDENTIFIED BY '$gitlab_pswd';";
+mysql -uroot -p$db_root_pswd -e "CREATE DATABASE IF NOT EXISTS gitlabhq_production DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
+mysql -uroot -p$db_root_pswd -e "GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON gitlabhq_production.* TO 'gitlab'@'localhost';";
 
 # We'll install GitLab into home directory of the user "git"
 cd /home/git
@@ -104,7 +107,7 @@ sudo -u git -H git clone https://github.com/gitlabhq/gitlabhq.git gitlab
 cd /home/git/gitlab
 
 # Checkout to stable release
-sudo -u git -H git checkout 5-3-stable
+sudo -u git -H git checkout 5-4-stable
 
 
 cd /home/git/gitlab
@@ -115,8 +118,8 @@ sudo -u git -H cp config/gitlab.yml.example config/gitlab.yml
 # Make sure to change "localhost" to the fully-qualified domain name of your
 # host serving GitLab where necessary
 ##sudo -u git -H editor config/gitlab.yml
-sudo -u git -H sed -i 's#    host: localhost#    host: git.ooooooo.me#' config/gitlab.yml
-#sudo -u git -H sed -i 's#    port: 80#    port: 8008#' config/gitlab.yml
+sudo -u git -H sed -i "s#    host: localhost#    host: $mygitlab_domain#" config/gitlab.yml
+#sudo -u git -H sed -i "s#    port: 80#    port: 8008#" config/gitlab.yml
 
 # Make sure GitLab can write to the log/ and tmp/ directories
 sudo chown -R git log/
@@ -125,7 +128,8 @@ sudo chmod -R u+rwX  log/
 sudo chmod -R u+rwX  tmp/
 
 # Create directory for satellites
-sudo -u git -H mkdir /home/git/gitlab-satellites
+sudo -u git -H mkdir -p /home/git/gitlab-satellites
+sudo -u git -H rm -rf /home/git/gitlab-satellites/*
 
 # Create directories for sockets/pids and make sure GitLab can write to them
 sudo -u git -H mkdir tmp/pids/
@@ -139,7 +143,8 @@ sudo chmod -R u+rwX  public/uploads
 
 # Copy the example Puma config
 sudo -u git -H cp config/puma.rb.example config/puma.rb
-##sudo -u git -H cp config/unicorn.rb.example config/unicorn.rb
+# Copy the example Unicorn config
+###sudo -u git -H cp config/unicorn.rb.example config/unicorn.rb
 
 # Enable cluster mode if you expect to have a high load instance
 # Ex. change amount of workers to 3 for 2GB RAM server
@@ -156,8 +161,8 @@ sudo -u git -H git config --global user.email "gitlab@localhost"
 sudo -u git cp config/database.yml.mysql config/database.yml
 
 ##sudo -u git -H editor config/database.yml
-sudo -u git -H sed -i 's#  username: root#  username: gitlab#' config/database.yml
-sudo -u git -H sed -i 's#  password: "secure password"#  password: "gitlab_user_password"#' config/database.yml
+sudo -u git -H sed -i "s#  username: root#  username: gitlab#" config/database.yml
+sudo -u git -H sed -i "s#  password: \"secure password\"#  password: \"$db_gitlab_pswd\"#" config/database.yml
 
 # Make config/database.yml readable to git only
 sudo -u git -H chmod o-rwx config/database.yml
@@ -188,10 +193,10 @@ sudo ln -s /usr/local/webserver/nginx/conf/sites-available/gitlab /usr/local/web
 # Change YOUR_SERVER_FQDN to the fully-qualified
 # domain name of your host serving GitLab.
 ##sudo editor /usr/local/webserver/nginx/conf/sites-available/gitlab
-sudo sed -i 's#listen YOUR_SERVER_IP:80 #listen *:80 #' /usr/local/webserver/nginx/conf/sites-available/gitlab
-sudo sed -i 's#YOUR_SERVER_FQDN#git.ooooooo.me#' /usr/local/webserver/nginx/conf/sites-available/gitlab
-sudo sed -i 's#listen \*:80 default_server;#listen *:80;#' /usr/local/webserver/nginx/conf/sites-available/gitlab
-sudo sed -i 's#/var/log/nginx/#/usr/local/webserver/nginx/logs/#' /usr/local/webserver/nginx/conf/sites-available/gitlab
+sudo sed -i "s#listen YOUR_SERVER_IP:80 #listen *:80 #" /usr/local/webserver/nginx/conf/sites-available/gitlab
+sudo sed -i "s#YOUR_SERVER_FQDN#$mygitlab_domain#" /usr/local/webserver/nginx/conf/sites-available/gitlab
+sudo sed -i "s#listen \*:80 default_server;#listen *:80;#" /usr/local/webserver/nginx/conf/sites-available/gitlab
+sudo sed -i "s#/var/log/nginx/#/usr/local/webserver/nginx/logs/#" /usr/local/webserver/nginx/conf/sites-available/gitlab
 
 
 sudo /usr/local/webserver/nginx/sbin/nginx -s reload
