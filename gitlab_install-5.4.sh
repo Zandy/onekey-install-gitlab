@@ -129,9 +129,13 @@ sudo chmod -R u+rwX  tmp/
 
 # Create directory for satellites
 sudo -u git -H mkdir -p /home/git/gitlab-satellites
-sudo rm -rf /home/git/gitlab-satellites/*
+if [ -d /home/git/gitlab-satellites ]; then
+	sudo ls /home/git/gitlab-satellites|xargs -I {} sudo rm -rf /home/git/gitlab-satellites/{}
+fi
 # Clear directory for repositories
-sudo rm -rf /home/git/repositories/*
+if [ -d /home/git/repositories ]; then
+	sudo ls /home/git/repositories|xargs -I {} sudo rm -rf /home/git/repositories/{}
+fi
 
 # Create directories for sockets/pids and make sure GitLab can write to them
 sudo -u git -H mkdir tmp/pids/
