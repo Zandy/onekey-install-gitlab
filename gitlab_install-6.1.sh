@@ -92,7 +92,7 @@ sudo -u git -H sed -i "s#gitlab_url: \"http://localhost/\"#gitlab_url: \"http://
 sudo -u git -H ./bin/install
 
 # setup database
-mysql -uroot -p$db_root_pswd -e "CREATE USER 'gitlab'@'localhost' IDENTIFIED BY '$gitlab_pswd';";
+mysql -uroot -p$db_root_pswd -e "CREATE USER 'gitlab'@'localhost' IDENTIFIED BY '$db_gitlab_pswd';";
 mysql -uroot -p$db_root_pswd -e "CREATE DATABASE IF NOT EXISTS gitlabhq_production DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
 mysql -uroot -p$db_root_pswd -e "GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON gitlabhq_production.* TO 'gitlab'@'localhost';";
 

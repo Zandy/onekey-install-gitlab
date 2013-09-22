@@ -92,7 +92,7 @@ sudo -u git -H sed -i "s#gitlab_url: \"http://localhost/\"#gitlab_url: \"http://
 sudo -u git -H ./bin/install
 
 # setup database
-mysql -uroot -p$db_root_pswd -e "CREATE USER 'gitlab'@'localhost' IDENTIFIED BY '$gitlab_pswd';";
+mysql -uroot -p$db_root_pswd -e "CREATE USER 'gitlab'@'localhost' IDENTIFIED BY '$db_gitlab_pswd';";
 mysql -uroot -p$db_root_pswd -e "CREATE DATABASE IF NOT EXISTS gitlabhq_production DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;";
 mysql -uroot -p$db_root_pswd -e "GRANT SELECT, LOCK TABLES, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON gitlabhq_production.* TO 'gitlab'@'localhost';";
 
@@ -130,6 +130,8 @@ sudo chmod -R u+rwX  tmp/
 # Create directory for satellites
 sudo -u git -H mkdir -p /home/git/gitlab-satellites
 sudo -u git -H rm -rf /home/git/gitlab-satellites/*
+# Clear directory for repositories
+sudo -u git -H rm -rf /home/git/repositories/*
 
 # Create directories for sockets/pids and make sure GitLab can write to them
 sudo -u git -H mkdir tmp/pids/
