@@ -130,6 +130,8 @@ sudo chmod -R u+rwX  tmp/
 # Create directory for satellites
 sudo -u git -H mkdir -p /home/git/gitlab-satellites
 sudo -u git -H rm -rf /home/git/gitlab-satellites/*
+# Clear directory for repositories
+sudo -u git -H rm -rf /home/git/repositories/*
 
 # Create directories for sockets/pids and make sure GitLab can write to them
 sudo -u git -H mkdir tmp/pids/
@@ -183,6 +185,8 @@ sudo -u git -H bundle exec rake gitlab:setup RAILS_ENV=production
 sudo cp lib/support/init.d/gitlab /etc/init.d/gitlab
 sudo chmod a+x /etc/init.d/gitlab
 sudo update-rc.d gitlab defaults 21
+
+sudo /etc/init.d/gitlab restart
 
 sudo -u git -H bundle exec rake gitlab:env:info RAILS_ENV=production
 

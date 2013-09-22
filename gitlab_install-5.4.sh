@@ -174,6 +174,7 @@ sudo gem install charlock_holmes --version '0.6.9.4'
 # For MySQL (note, the option says "without ... postgres")
 sudo -u git -H bundle install --deployment --without development test postgres unicorn aws
 
+
 sudo -u git -H bundle exec rake gitlab:setup RAILS_ENV=production
 # Type 'yes' to create the database.
 # When done you see 'Administrator account created:'
@@ -181,6 +182,8 @@ sudo -u git -H bundle exec rake gitlab:setup RAILS_ENV=production
 sudo cp lib/support/init.d/gitlab /etc/init.d/gitlab
 sudo chmod a+x /etc/init.d/gitlab
 sudo update-rc.d gitlab defaults 21
+
+sudo /etc/init.d/gitlab restart
 
 sudo -u git -H bundle exec rake gitlab:env:info RAILS_ENV=production
 
