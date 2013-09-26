@@ -80,6 +80,7 @@ cd gitlab-shell
 
 # switch to right version
 sudo -u git -H git checkout v1.7.1
+sudo -u git -H sed -i "s~^source \"http[s]*://rubygems.org\"~#source \"https://rubygems.org\"\nsource \"http://ruby.taobao.org/\"~" Gemfile
 
 sudo -u git -H cp config.yml.example config.yml
 
@@ -108,7 +109,7 @@ cd /home/git/gitlab
 
 # Checkout to stable release
 sudo -u git -H git checkout 6-1-stable
-
+sudo -u git -H sed -i "s~^source \"http[s]*://rubygems.org\"~#source \"https://rubygems.org\"\nsource \"http://ruby.taobao.org/\"~" Gemfile
 
 cd /home/git/gitlab
 
