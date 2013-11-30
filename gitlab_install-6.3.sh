@@ -2,6 +2,7 @@
 
 :<<EOF
 by Zandy
+only test on debian7
 EOF
 
 # config
