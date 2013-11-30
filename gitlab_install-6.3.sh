@@ -25,7 +25,7 @@ sudo apt-get install -y mysql-server mysql-client libmysqlclient-dev
 sudo apt-get install -y build-essential zlib1g-dev libyaml-dev libssl-dev libgdbm-dev libreadline-dev libncurses5-dev libffi-dev curl openssh-server redis-server checkinstall libxml2-dev libxslt-dev libcurl4-openssl-dev libicu-dev logrotate
 
 redis_version=$(redis-cli --version 2>&1|awk '{print $2}')
-mairedis=$(echo ${redis_version:-0}|awk '{if ($0 >= 2.0.0){print 1}else{print 0}}')
+mairedis=$(echo ${redis_version:-0}|awk '{if ($0 >= "2.0.0"){print 1}else{print 0}}')
 if [ $mairedis -eq 0 ]; then
 	echo "redis version must be more than 2.0.0, current is $redis_version"
 	exit 1
